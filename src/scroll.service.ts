@@ -22,25 +22,28 @@ export class ScrollService {
         this.scrollData.elements = newLists[1];
     }
 
-    private _getScrollData(findByElements: any, elements: QueryList<any>, instances: QueryList<any>) {
-        let data: any[]
-        if(findByElements) {
-            data = [elements.map(element=>element.nativeElement), elements.toArray()];
-        }else if(instances.first instanceof ElementRef) {
-            data = [elements.map(element=>element.nativeElement), elements.toArray()];
-        }else {
-            data = [instances.toArray(), elements.toArray()];
-        }
-        return data;
+    private _getScrollData(elements: QueryList<any>, instances: QueryList<any>) {
+		let filterData: any[] = [],
+		data: any,
+		elementsArr = elements.toArray();
+
+		instances.forEach((instance, index)=> {
+			data = {
+				"instance" : instance instanceof ElementRef ? null : instance ,
+				"nativeElement" : elementsArr[index]
+			}
+			filterData.push(data);
+		});
+		return [filterData, elementsArr];
     }
-    public scroll(finder: callback, findByElements=false, context?: any): boolean {
+    public scroll(finder: callback, context?: any): boolean {
         let filterData: any[],
         selectionData: any[],
         selection: any,
         found: boolean,
         index: number;
 
-        [ filterData, selectionData ] = this._getScrollData(findByElements, this.scrollData.elements, this.scrollData.instances);
+        [ filterData, selectionData ] = this._getScrollData(this.scrollData.elements, this.scrollData.instances);
         if(!filterData || !selectionData) {
             return false;
         }
